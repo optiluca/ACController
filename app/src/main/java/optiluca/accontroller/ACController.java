@@ -87,8 +87,10 @@ public class ACController extends AppCompatActivity implements View.OnClickListe
         //ir.transmit(38400, IR_SIGNAL_TIME_LENGTH);
 
         // TODO: Input as parameters
-        daikinTemplate[12] = DAIKIN_AIRCON2_MODE_COOL; // mode
-        daikinTemplate[16] = 21; // deg C
+        daikinTemplate[12] = DAIKIN_AIRCON2_MODE_COOL | DAIKIN_AIRCON2_MODE_ON; // mode
+
+        int temperatureCmd = 21; // deg C
+        daikinTemplate[16] = (temperatureCmd << 1) - 20;
         daikinTemplate[17] = DAIKIN_AIRCON2_FAN5; //fan speed
 
         // Calculate checksum
@@ -104,31 +106,31 @@ public class ACController extends AppCompatActivity implements View.OnClickListe
         int freq = 38000;
 
         // Header
-        Vector<Integer> msg = new Vector<>();
+        ArrayList<Integer> msg = new ArrayList<>();
 
-        msg.addElement(DAIKIN_AIRCON2_HDR_MARK);
-        msg.addElement(DAIKIN_AIRCON2_HDR_SPACE);
+        msg.add(DAIKIN_AIRCON2_HDR_MARK);
+        msg.add(DAIKIN_AIRCON2_HDR_SPACE);
 
         // First header
         for (int i=0; i<7; i++) {
             int currByte = daikinTemplate[i];
             for (int j=0; j<7; j++) {
                 if ((currByte & 0x01) == 0x01) {
-                    msg.addElement(DAIKIN_AIRCON2_BIT_MARK);
-                    msg.addElement(DAIKIN_AIRCON2_ONE_SPACE);
+                    msg.add(DAIKIN_AIRCON2_BIT_MARK);
+                    msg.add(DAIKIN_AIRCON2_ONE_SPACE);
                 } else {
-                    msg.addElement(DAIKIN_AIRCON2_BIT_MARK);
-                    msg.addElement(DAIKIN_AIRCON2_ZERO_SPACE);
+                    msg.add(DAIKIN_AIRCON2_BIT_MARK);
+                    msg.add(DAIKIN_AIRCON2_ZERO_SPACE);
                 }
-                currByte >>=1;
+                currByte = currByte >> 1;
             }
         }
 
         // New header
-        msg.addElement(DAIKIN_AIRCON2_BIT_MARK);
-        msg.addElement(DAIKIN_AIRCON2_MSG_SPACE);
-        msg.addElement(DAIKIN_AIRCON2_HDR_MARK);
-        msg.addElement(DAIKIN_AIRCON2_HDR_SPACE);
+        msg.add(DAIKIN_AIRCON2_BIT_MARK);
+        msg.add(DAIKIN_AIRCON2_MSG_SPACE);
+        msg.add(DAIKIN_AIRCON2_HDR_MARK);
+        msg.add(DAIKIN_AIRCON2_HDR_SPACE);
 
         //
         // First header
@@ -136,24 +138,24 @@ public class ACController extends AppCompatActivity implements View.OnClickListe
             int currByte = daikinTemplate[i];
             for (int j=0; j<7; j++) {
                 if ((currByte & 0x01) == 0x01) {
-                    msg.addElement(DAIKIN_AIRCON2_BIT_MARK);
-                    msg.addElement(DAIKIN_AIRCON2_ONE_SPACE);
+                    msg.add(DAIKIN_AIRCON2_BIT_MARK);
+                    msg.add(DAIKIN_AIRCON2_ONE_SPACE);
                 } else {
-                    msg.addElement(DAIKIN_AIRCON2_BIT_MARK);
-                    msg.addElement(DAIKIN_AIRCON2_ZERO_SPACE);
+                    msg.add(DAIKIN_AIRCON2_BIT_MARK);
+                    msg.add(DAIKIN_AIRCON2_ZERO_SPACE);
                 }
-                currByte >>=1;
+                currByte = currByte >> 1;
             }
         }
 
-        msg.addElement(DAIKIN_AIRCON2_BIT_MARK);
+        msg.add(DAIKIN_AIRCON2_BIT_MARK);
 
-        msg.addElement(1);
+        msg.add(1);
 
         ir.transmit(freq,toIntArray(msg));
     }
 
-    int[] toIntArray(List<Integer> list){
+    int[] toIntArray(ArrayList<Integer> list){
         int[] ret = new int[list.size()];
         for(int i = 0;i < ret.length;i++)
             ret[i] = list.get(i);
