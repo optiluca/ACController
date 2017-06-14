@@ -51,11 +51,6 @@ public class ACController extends AppCompatActivity implements View.OnClickListe
         spamACStatusText = (TextView) findViewById(R.id.spamAcStatus);
 
         ir = (ConsumerIrManager) getSystemService(CONSUMER_IR_SERVICE);
-        //button.setOnClickListener(new View.OnClickListener() {
-        //   public void onClick(View v) {
-        //        ConsumerIrManager ir = (ConsumerIrManager)getSystemService(CONSUMER_IR_SERVICE);
-        //    }
-        //});
     }
 
     @Override
@@ -64,16 +59,6 @@ public class ACController extends AppCompatActivity implements View.OnClickListe
             spamCount += 1;
             spamACStatusText.setText("Spammed codes " + spamCount + " times");
             sendDaikin();
-
-           /* ConsumerIrManager.CarrierFrequencyRange[] freqRange = ir.getCarrierFrequencies();
-            for (int i = 0 ; i< freqRange.length; i++)
-            {
-
-                spamACStatusText.setText("Min Freq " + i + " is " + freqRange[i].getMinFrequency());
-
-
-                spamACStatusText.setText("Max Freq " + i + " is " + freqRange[i].getMaxFrequency());
-            }*/
         }
 
     }
@@ -87,11 +72,11 @@ public class ACController extends AppCompatActivity implements View.OnClickListe
         //ir.transmit(38400, IR_SIGNAL_TIME_LENGTH);
 
         // TODO: Input as parameters
-        daikinTemplate[12] = DAIKIN_AIRCON2_MODE_COOL | DAIKIN_AIRCON2_MODE_ON; // mode
+        daikinTemplate[12] = DAIKIN_AIRCON2_MODE_OFF | DAIKIN_AIRCON2_MODE_AUTO; // mode
 
-        int temperatureCmd = 21; // deg C
+        int temperatureCmd = 18; // deg C
         daikinTemplate[16] = (temperatureCmd << 1) - 20;
-        daikinTemplate[17] = DAIKIN_AIRCON2_FAN5; //fan speed
+        daikinTemplate[17] = DAIKIN_AIRCON2_FAN_AUTO; //fan speed
 
         // Calculate checksum
         int checksum = 0x00;
@@ -113,17 +98,8 @@ public class ACController extends AppCompatActivity implements View.OnClickListe
 
         // First header
         for (int i=0; i<7; i++) {
-            int currByte = daikinTemplate[i];
-            for (int j=0; j<7; j++) {
-                if ((currByte & 0x01) == 0x01) {
-                    msg.add(DAIKIN_AIRCON2_BIT_MARK);
-                    msg.add(DAIKIN_AIRCON2_ONE_SPACE);
-                } else {
-                    msg.add(DAIKIN_AIRCON2_BIT_MARK);
-                    msg.add(DAIKIN_AIRCON2_ZERO_SPACE);
-                }
-                currByte = currByte >> 1;
-            }
+            ArrayList<Integer> tmpMsg = sendIRByte(daikinTemplate[i],DAIKIN_AIRCON2_BIT_MARK,DAIKIN_AIRCON2_ZERO_SPACE,DAIKIN_AIRCON2_ONE_SPACE);
+            msg.addAll(tmpMsg);
         }
 
         // New header
@@ -135,17 +111,8 @@ public class ACController extends AppCompatActivity implements View.OnClickListe
         //
         // First header
         for (int i=7; i<20; i++) {
-            int currByte = daikinTemplate[i];
-            for (int j=0; j<7; j++) {
-                if ((currByte & 0x01) == 0x01) {
-                    msg.add(DAIKIN_AIRCON2_BIT_MARK);
-                    msg.add(DAIKIN_AIRCON2_ONE_SPACE);
-                } else {
-                    msg.add(DAIKIN_AIRCON2_BIT_MARK);
-                    msg.add(DAIKIN_AIRCON2_ZERO_SPACE);
-                }
-                currByte = currByte >> 1;
-            }
+            ArrayList<Integer> tmpMsg = sendIRByte(daikinTemplate[i],DAIKIN_AIRCON2_BIT_MARK,DAIKIN_AIRCON2_ZERO_SPACE,DAIKIN_AIRCON2_ONE_SPACE);
+            msg.addAll(tmpMsg);
         }
 
         msg.add(DAIKIN_AIRCON2_BIT_MARK);
@@ -162,7 +129,22 @@ public class ACController extends AppCompatActivity implements View.OnClickListe
         return ret;
     }
 
-    public void mark(int markLength) {
+    public ArrayList<Integer> sendIRByte(int sendByte,int bitMarkLength, int zeroSpaceLength, int oneSpaceLength) {
+
+        ArrayList<Integer> byteOut = new ArrayList<>();
+
+        for (int j=0; j<8; j++) {
+            if ((sendByte & 0x01) == 0x01) {
+                byteOut.add(bitMarkLength);
+                byteOut.add(oneSpaceLength);
+            } else {
+                byteOut.add(bitMarkLength);
+                byteOut.add(zeroSpaceLength);
+            }
+            sendByte = sendByte >> 1;
+        }
+
+        return byteOut;
 
     }
 }
