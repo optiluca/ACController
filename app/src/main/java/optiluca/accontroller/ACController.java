@@ -10,7 +10,9 @@ import java.util.*;
 
 public class ACController extends AppCompatActivity implements View.OnClickListener {
 
-    private Button spamACClick;
+    private Button powerButtonClick;
+    private Button offButtonClick;
+
     private TextView spamACStatusText;
     private int spamCount = 0;
 
@@ -45,8 +47,10 @@ public class ACController extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_accontroller);
-        spamACClick = (Button) findViewById(R.id.spamAcButton);
-        spamACClick.setOnClickListener(this);
+        powerButtonClick = (Button) findViewById(R.id.onButton);
+        powerButtonClick.setOnClickListener(this);
+
+        offButtonClick = (Button) findViewById(R.id.offButton);
 
         spamACStatusText = (TextView) findViewById(R.id.spamAcStatus);
 
@@ -55,15 +59,21 @@ public class ACController extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        if (v == spamACClick) {
+        if (v == powerButtonClick) {
             spamCount += 1;
             spamACStatusText.setText("Spammed codes " + spamCount + " times");
-            sendDaikin();
+            // mode, temp, fan
+            sendDaikin(DAIKIN_AIRCON2_MODE_ON | DAIKIN_AIRCON2_MODE_AUTO,18, DAIKIN_AIRCON2_FAN_AUTO);
+        }
+        if (v == offButtonClick) {
+            spamCount += 1;
+            spamACStatusText.setText("Spammed codes " + spamCount + " times");
+            sendDaikin(DAIKIN_AIRCON2_MODE_OFF | DAIKIN_AIRCON2_MODE_AUTO,18, DAIKIN_AIRCON2_FAN_AUTO);
         }
 
     }
 
-    public void sendDaikin() {
+    public void sendDaikin(int mode, int temp, int fan) {
         int[] daikinTemplate = {
             0x11, 0xDA, 0x27, 0xF0, 0x0D, 0x00, 0x0F, // First header
                     //  0     1     2     3     4     5     6
@@ -72,11 +82,11 @@ public class ACController extends AppCompatActivity implements View.OnClickListe
         //ir.transmit(38400, IR_SIGNAL_TIME_LENGTH);
 
         // TODO: Input as parameters
-        daikinTemplate[12] = DAIKIN_AIRCON2_MODE_OFF | DAIKIN_AIRCON2_MODE_AUTO; // mode
+        daikinTemplate[12] = mode; // mode
 
-        int temperatureCmd = 18; // deg C
+        int temperatureCmd = temp; // deg C
         daikinTemplate[16] = (temperatureCmd << 1) - 20;
-        daikinTemplate[17] = DAIKIN_AIRCON2_FAN_AUTO; //fan speed
+        daikinTemplate[17] = fan; //fan speed
 
         // Calculate checksum
         int checksum = 0x00;
