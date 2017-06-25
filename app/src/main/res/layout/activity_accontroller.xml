@@ -15,7 +15,7 @@
         android:text="ON"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.034"
+        app:layout_constraintVertical_bias="0.457"
         app:layout_constraintRight_toLeftOf="@+id/offButton"
         app:layout_constraintLeft_toLeftOf="parent" />
 
@@ -39,19 +39,7 @@
         app:layout_constraintHorizontal_bias="0.916"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.034" />
-
-    <EditText
-        android:id="@+id/Temperature"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="number"
-        android:selectAllOnFocus="false"
-        app:layout_constraintBottom_toTopOf="@+id/applyButton"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/onButton" />
+        app:layout_constraintVertical_bias="0.457" />
 
     <Button
         android:id="@+id/applyButton"
@@ -59,8 +47,18 @@
         android:layout_height="wrap_content"
         android:text="Apply"
         app:layout_constraintBottom_toTopOf="@+id/spamAcStatus"
-        app:layout_constraintTop_toBottomOf="@+id/Temperature"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent" />
+
+    <Button
+        android:id="@+id/quitButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Quit"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.868" />
 
 </android.support.constraint.ConstraintLayout>
